@@ -4,35 +4,51 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strconv"
 
-	"github.com/SWCE/keyval-resource/models"
+	"github.com/moredhel/keyval-resource/models"
 	"fmt"
 	"bufio"
-	"sort"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		fatalNoErr("usage: " + os.Args[0] + " <destination>")
-	}
+var (
+	destination string
+)
 
-	destination := os.Args[1]
+func create_file(key string, value string) {
+	fmt.Printf("%s:%s\n", key, value)
+	output := filepath.Join(destination, key)
 
-	log("creating destination dir " + destination)
-	err := os.MkdirAll(destination, 0755)
-	if err != nil {
-		fatal("creating destination", err)
-	}
-
-	output := filepath.Join(destination, "keyval.properties")
-	log("creating output file " + output)
 	file, err := os.Create(output)
 	if err != nil {
 		fatal("creating output file", err)
 	}
 
 	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	fmt.Fprintf(w, "%s", value)
+
+
+	err = w.Flush()
+
+	
+	if err != nil {
+		fatal("writing output file", err)
+	}
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		fatalNoErr("usage: " + os.Args[0] + " <destination>")
+	}
+
+	destination = os.Args[1]
+
+	log("creating destination dir " + destination)
+	err := os.MkdirAll(destination, 0755)
+	if err != nil {
+		fatal("creating destination", err)
+	}
 
 	var request models.InRequest
 
@@ -41,31 +57,9 @@ func main() {
 		fatal("reading request", err)
 	}
 
-	var inVersion = request.Version
-
-	w := bufio.NewWriter(file)
-
-	var keys []string
-	for k := range inVersion {
-		keys = append(keys, k)
+	for k, v := range request.Version {
+		create_file(k, v)
 	}
-	sort.Strings(keys)
-
-	log("writing " + strconv.Itoa(len(keys)) + " keys to output file")
-	for _, k := range keys {
-		fmt.Fprintf(w, "%s=%s\n", k, inVersion[k])
-	}
-
-	err = w.Flush()
-
-	if err != nil {
-		fatal("writing output file", err)
-	}
-
-	json.NewEncoder(os.Stdout).Encode(models.InResponse{
-		Version:  inVersion,
-	})
-
 	log("Done")
 }
 
