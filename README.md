@@ -40,8 +40,20 @@ This is a version-less resource so `check` behavior is no-op
 
 ### `in`: Report the given time.
 
-Fetches the given key values and stores them in the `keyval.properties` file.
-The format is of a `.properties` file, e.g. `"<key>=<value>"`.
+Fetches the given key values and stores them in their own files where the
+key is the name of the file and the value is the contents.
+
+``` sh
+version:
+    my_secret: secret_value
+```
+
+would result in:
+
+``` sh
+$ cat resource/my_secret
+secret_value
+```
 
 #### Parameters
 
@@ -49,13 +61,7 @@ The format is of a `.properties` file, e.g. `"<key>=<value>"`.
 
 ### `out`: Consumes the given properties file
 
-``` YAML
-- put: keyval
-  params:
-    file: keyvalout/keyval.properties
-```
-
-Reads the given properties file and sets them for the next job.
+**NOT IMPLEMENTED** (pull-requests welcome)
 
 #### Parameters
 - file - the properties file to read the key values from
@@ -167,6 +173,8 @@ fi
 * godep is used for dependency management of the golang packages.
 
 ### Running the tests
+
+**NOTE**: Tests have not yet been rewritten to reflect the updated configuration
 
 The tests have been embedded with the `Dockerfile`; ensuring that the testing
 environment is consistent across any `docker` enabled platform. When the docker

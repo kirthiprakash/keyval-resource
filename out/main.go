@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/SWCE/keyval-resource/models"
+	"github.com/moredhel/keyval-resource/models"
 	"github.com/magiconair/properties"
 	"github.com/google/uuid"
 	"fmt"

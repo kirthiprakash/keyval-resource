@@ -15,7 +15,6 @@ var (
 )
 
 func create_file(key string, value string) {
-	fmt.Printf("%s:%s\n", key, value)
 	output := filepath.Join(destination, key)
 
 	file, err := os.Create(output)

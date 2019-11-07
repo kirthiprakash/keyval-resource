@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"github.com/SWCE/keyval-resource/models"
+	"github.com/moredhel/keyval-resource/models"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/SWCE/keyval-resource/models"
+	"github.com/moredhel/keyval-resource/models"
 )
 
 func main() {
