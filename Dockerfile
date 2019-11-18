@@ -1,11 +1,15 @@
 FROM golang:alpine as builder
-COPY . /go/src/github.com/moredhel/keyval-resource
 ENV CGO_ENABLED 0
-ENV GOPATH /go/src/github.com/moredhel/keyval-resource/Godeps/_workspace:${GOPATH}
-ENV PATH /go/src/github.com/moredhel/keyval-resource/Godeps/_workspace/bin:${PATH}
-RUN go build -o /assets/out github.com/moredhel/keyval-resource/out
-RUN go build -o /assets/in github.com/moredhel/keyval-resource/in
-RUN go build -o /assets/check github.com/moredhel/keyval-resource/check
+
+WORKDIR /keyval-resource
+
+COPY go.sum .
+COPY go.mod .
+RUN go mod download
+COPY . .
+RUN go build -o /assets/out ./out
+RUN go build -o /assets/in ./in
+RUN go build -o /assets/check ./check
 # RUN set -e; for pkg in $(go list ./...); do \
 # 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 # 	done
