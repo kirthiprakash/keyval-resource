@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/moredhel/keyval-resource/models"
-	"fmt"
 	"bufio"
+	"fmt"
+	"github.com/moredhel/keyval-resource/models"
 )
 
 var (
@@ -27,10 +27,8 @@ func create_file(key string, value string) {
 	w := bufio.NewWriter(file)
 	fmt.Fprintf(w, "%s", value)
 
-
 	err = w.Flush()
 
-	
 	if err != nil {
 		fatal("writing output file", err)
 	}
@@ -63,7 +61,7 @@ func main() {
 }
 
 func fatal(doing string, err error) {
-	fmt.Fprintln(os.Stderr, "error " + doing + ": " + err.Error())
+	fmt.Fprintln(os.Stderr, "error "+doing+": "+err.Error())
 	os.Exit(1)
 }
 
@@ -75,5 +73,3 @@ func fatalNoErr(doing string) {
 	log(doing)
 	os.Exit(1)
 }
-
-

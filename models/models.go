@@ -11,24 +11,23 @@ type InRequest struct {
 }
 
 type InResponse struct {
-	Version  Version  `json:"version"`
+	Version Version `json:"version"`
 }
 
 type OutRequest struct {
 	Source Source `json:"source"`
-	Params  map[string]string
+	Params map[string]string
 }
 
 type OutResponse struct {
-	Version  Version  `json:"version"`
+	Version Version `json:"version"`
 }
 
 type CheckRequest struct {
-	Source  Source  `json:"source"`
-	Version  EmptyVersion  `json:"version"`
+	Source  Source       `json:"source"`
+	Version EmptyVersion `json:"version"`
 }
 
 type CheckResponse []EmptyVersion
 
-type Source struct {}
-
+type Source struct{}
