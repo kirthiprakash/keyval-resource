@@ -30,28 +30,32 @@ func main() {
 	data := make(map[string]string)
 
 	// read in files
-	err = filepath.Walk(destination, func(path string, info os.FileInfo, err error) error {
-		fileName := info.Name()
+	files, err := ioutil.ReadDir(destination)
+
+	if err != nil {
+		fatal("could not open directory", err)
+		return
+	}
+
+
+	for i := range files {
+		file := files[i]
+		fileName := file.Name()
 
 		// don't supported nested maps
-		if info.IsDir() {
+		if file.IsDir() {
 			log(fmt.Sprintf("skipping directory %s", fileName))
-			return nil
+			continue
 		}
 
 		inputFile := filepath.Join(destination, fileName)
 		content, err := ioutil.ReadFile(inputFile)
 		if err != nil {
-			return err
+			log(fmt.Sprintf("skipping file %s", fileName))
+			continue
 		}
 
 		data[fileName] = string(content)
-
-		return nil
-	})
-
-	if err != nil {
-		fatal("could not open directory", err)
 	}
 
 	// override with request keys
