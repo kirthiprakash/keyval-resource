@@ -14,13 +14,9 @@ type InResponse struct {
 	Version  Version  `json:"version"`
 }
 
-type OutParams struct {
-	File string `json:"file"`
-}
-
 type OutRequest struct {
 	Source Source `json:"source"`
-	Params  OutParams `json:"params"`
+	Params  map[string]string
 }
 
 type OutResponse struct {

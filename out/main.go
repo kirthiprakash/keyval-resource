@@ -2,14 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 
-	"github.com/moredhel/keyval-resource/models"
-	"github.com/magiconair/properties"
-	"github.com/google/uuid"
 	"fmt"
+	"github.com/google/uuid"
+	"github.com/moredhel/keyval-resource/models"
 	"time"
 )
 
@@ -27,20 +27,45 @@ func main() {
 		fatal("reading request", err)
 	}
 
-	if request.Params.File != "" {
-		inputFile := filepath.Join(destination, request.Params.File)
-		log("reading input file " + inputFile)
-		var data = properties.MustLoadFile(inputFile, properties.UTF8).Map()
-		data["UPDATED"] = time.Now().Format(time.RFC850)
-		data["UUID"] = uuid.New().String()
-		log("read " + strconv.Itoa(len(data)) + " keys from input file")
+	data := make(map[string]string)
 
-		json.NewEncoder(os.Stdout).Encode(models.OutResponse{
-			Version:  data,
-		})
-	} else {
-		fatalNoErr("no properties file specified")
+	// read in files
+	err = filepath.Walk(destination, func(path string, info os.FileInfo, err error) error {
+		fileName := info.Name()
+
+		// don't supported nested maps
+		if info.IsDir() {
+			log(fmt.Sprintf("skipping directory %s", fileName))
+			return nil
+		}
+
+		inputFile := filepath.Join(destination, fileName)
+		content, err := ioutil.ReadFile(inputFile)
+		if err != nil {
+			return err
+		}
+
+		data[fileName] = string(content)
+
+		return nil
+	})
+
+	if err != nil {
+		fatal("could not open directory", err)
 	}
+
+	// override with request keys
+	for k, v := range request.Params {
+		data[k] = v
+	}
+
+	data["UPDATED"] = time.Now().Format(time.RFC850)
+	data["UUID"] = uuid.New().String()
+	log("read " + strconv.Itoa(len(data)) + " keys from input file")
+
+	json.NewEncoder(os.Stdout).Encode(models.OutResponse{
+		Version: data,
+	})
 
 }
 
