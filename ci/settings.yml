@@ -1,0 +1,73 @@
+---
+meta:
+  name:    keyval-resource
+  release: Key-value Concourse resource
+  target:  gk-plat-devs
+  url:     https://ci.gstack.io
+
+  initial_version: 1.0.4
+
+  git:
+    email:  ((git-commit-email))
+    name:   ((git-commit-name))
+
+  image:
+    name: harbor.ci.gstack.io/gstack/gk-ops
+    registry:
+      username: ((docker_registry_username))
+      password: ((docker-registry-password))
+
+  dockerhub:
+    username: ((docker-registry-username))
+    password: ((docker-registry-password))
+    repository: (( concat "harbor.ci.gstack.io/gstack/" meta.name ))
+
+  aws:
+    bucket:      (( grab meta.pipeline ))
+    region_name: eu-west-3
+    access_key:  ((aws-access-key))
+    secret_key:  ((aws-secret-key))
+
+  github:
+    owner:        gstackio
+    repo:         keyval-resource
+    branch:       master
+    private_key:  ((github-private-key))
+    access_token: ((github-access-token))
+
+  slack:
+    webhook:       ((slack-webhook))
+    username:      ((slack-username))
+    icon:          ((slack-icon-url))
+    channel:       "#pipelines-notifications"
+    test_fail_msg:  '(( concat ":concourse-fail: <" meta.url "/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME| Failed " meta.name " tests!  Click for details.>" ))'
+
+groups:
+  - name: (( grab meta.name ))
+    jobs:
+      - (( delete "major" ))
+      - (( delete "minor" ))
+  - name: version
+    jobs:
+      - major
+      - minor
+
+resources:
+
+  - name: version
+    source:
+      bucket:            (( prune ))
+      region_name:       (( prune ))
+      key:               (( prune ))
+      access_key_id:     (( prune ))
+      secret_access_key: (( prune ))
+      driver:      git
+      uri:         git@github.com:gstackio/gk-pipelines-compass.git
+      branch:      master
+      file:        (( concat "versions/" meta.pipeline ))
+      private_key: ((github-private-key))
+      git_user:    "((git-commit-name)) <((git-commit-email))>"
+
+  - name: git
+    check_every: 24h
+    webhook_token: ((concourse-webhook-token))
