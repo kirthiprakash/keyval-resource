@@ -22,14 +22,15 @@ var _ = Describe("Check", func() {
 	})
 
 	Context("when executed", func() {
-		var source map[string]interface{}
-		var version *models.EmptyVersion
-		var response models.CheckResponse
+		var (
+			source   map[string]interface{}
+			version  *models.Version
+			response models.CheckResponse
+		)
 
 		BeforeEach(func() {
 			source = map[string]interface{}{}
 			response = models.CheckResponse{}
-			version = nil
 		})
 
 		JustBeforeEach(func() {
@@ -53,15 +54,18 @@ var _ = Describe("Check", func() {
 		})
 
 		Context("when no version is given", func() {
+			BeforeEach(func() {
+				version = nil
+			})
+
 			It("outputs an empty version array", func() {
 				Expect(response).To(HaveLen(0))
 			})
 		})
 
-		Context("when version is given", func() {
-
+		Context("when empty version object is given", func() {
 			BeforeEach(func() {
-				version = &models.EmptyVersion{}
+				version = &models.Version{}
 			})
 
 			It("outputs an empty version array", func() {
@@ -83,6 +87,7 @@ var _ = Describe("Check", func() {
 
 			stdin.Close()
 		})
+
 		Context("with a missing everything", func() {
 			It("returns an error", func() {
 				<-session.Exited

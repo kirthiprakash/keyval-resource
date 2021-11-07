@@ -8,7 +8,6 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/magiconair/properties"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
@@ -17,10 +16,11 @@ import (
 )
 
 var _ = Describe("In", func() {
-	var tmpdir string
-	var destination string
-
-	var inCmd *exec.Cmd
+	var (
+		tmpdir      string
+		destination string
+		inCmd       *exec.Cmd
+	)
 
 	BeforeEach(func() {
 		var err error
@@ -38,8 +38,10 @@ var _ = Describe("In", func() {
 	})
 
 	Context("when executed", func() {
-		var request models.InRequest
-		var response models.InResponse
+		var (
+			request  models.InRequest
+			response models.InResponse
+		)
 
 		BeforeEach(func() {
 
@@ -71,19 +73,20 @@ var _ = Describe("In", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("reports the version to be the input version", func() {
+		It("reports the version to be the same as the version in input", func() {
 			Expect(len(response.Version)).To(Equal(2))
 			Expect(response.Version["a"]).To(Equal("1"))
 			Expect(response.Version["b"]).To(Equal("2"))
 		})
 
-		It("writes the requested data the destination", func() {
+		It("writes key-value pairs to files in the destination directory", func() {
+			aBytes, err := ioutil.ReadFile(filepath.Join(destination, "a"))
+			Expect(err).NotTo(HaveOccurred())
+			bBytes, err := ioutil.ReadFile(filepath.Join(destination, "b"))
+			Expect(err).NotTo(HaveOccurred())
 
-			var data = properties.MustLoadFile(filepath.Join(destination, "keyval.properties"), properties.UTF8).Map()
-
-			Expect(len(data)).To(Equal(2))
-			Expect(data["a"]).To(Equal("1"))
-			Expect(data["b"]).To(Equal("2"))
+			Expect(string(aBytes)).To(Equal("1"))
+			Expect(string(bBytes)).To(Equal("2"))
 		})
 
 		Context("when the request has no keys in version", func() {
@@ -91,10 +94,12 @@ var _ = Describe("In", func() {
 				request.Version = models.Version{}
 			})
 
-			It("reports  empty data", func() {
+			It("reports empty data", func() {
 				Expect(len(response.Version)).To(Equal(0))
-				var data = properties.MustLoadFile(filepath.Join(destination, "keyval.properties"), properties.UTF8).Map()
-				Expect(len(data)).To(Equal(0))
+
+				files, err := ioutil.ReadDir(destination)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(len(files)).To(Equal(0))
 			})
 		})
 	})

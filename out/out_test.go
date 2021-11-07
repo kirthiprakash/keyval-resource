@@ -18,31 +18,43 @@ import (
 	"gstack.io/concourse/keyval-resource/models"
 )
 
-var _ = Describe("Out", func() {
-	var tmpdir string
-	var source string
+func writeFile(name string, contents string) {
+	file, err := os.Create(name)
 
-	var outCmd *exec.Cmd
+	Expect(err).NotTo(HaveOccurred())
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+	fmt.Fprint(writer, contents)
+	writer.Flush()
+}
+
+var _ = Describe("Out", func() {
+	var (
+		sourceDir string
+		outDir    = "out-dir"
+		outCmd    *exec.Cmd
+	)
 
 	BeforeEach(func() {
 		var err error
 
-		tmpdir, err = ioutil.TempDir("", "out-source")
+		sourceDir, err = ioutil.TempDir("", "out-source")
 		Expect(err).NotTo(HaveOccurred())
 
-		source = path.Join(tmpdir, "out-dir")
-		os.MkdirAll(source, 0755)
-		outCmd = exec.Command(outPath, source)
-		fmt.Printf("%s", tmpdir)
+		outCmd = exec.Command(outPath, sourceDir)
+
+		os.MkdirAll(path.Join(sourceDir, outDir), 0755)
 	})
 
 	AfterEach(func() {
-		os.RemoveAll(tmpdir)
+		os.RemoveAll(sourceDir)
 	})
 
 	Context("when executed", func() {
-		var request models.OutRequest
-		var response models.OutResponse
+		var (
+			request  models.OutRequest
+			response models.OutResponse
+		)
 
 		BeforeEach(func() {
 			request = models.OutRequest{}
@@ -67,48 +79,57 @@ var _ = Describe("Out", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		Context("output data in properties file", func() {
+		Context("two files in artifact directory", func() {
 			BeforeEach(func() {
-				var outDir = path.Join(source, "out")
-				os.MkdirAll(outDir, 0755)
-				file, _ := os.Create(path.Join(outDir, "keyval.properties"))
-				defer file.Close()
-				w := bufio.NewWriter(file)
-				fmt.Fprintln(w, "a=1")
-				fmt.Fprintln(w, "b=2")
-				w.Flush()
+				os.RemoveAll(outDir)
+				writeFile(path.Join(sourceDir, outDir, "a"), "1")
+				writeFile(path.Join(sourceDir, outDir, "b"), "2")
+
 				request = models.OutRequest{
 					Params: models.OutParams{
-						File: path.Join("out", "keyval.properties"),
+						Directory: outDir,
 					},
 				}
 			})
 
-			It("reports empty data", func() {
+			It("reports some value for UUID and UPDATED keys", func() {
+				Expect(response.Version).To(HaveKey("UPDATED"))
+				Expect(response.Version).To(HaveKey("UUID"))
+				Expect(response.Version["UPDATED"]).NotTo(BeEmpty())
+				Expect(response.Version["UUID"]).NotTo(BeEmpty())
+			})
+
+			It("reports key-value pairs from files into the version object", func() {
 				Expect(len(response.Version)).To(Equal(4))
 				Expect(response.Version["a"]).To(Equal("1"))
 				Expect(response.Version["b"]).To(Equal("2"))
-				Expect(response.Version).To(HaveKey("UPDATED"))
-				Expect(response.Version).To(HaveKey("UUID"))
-				Expect(response.Version["UPDATED"]).To(Not(BeEmpty()))
-				Expect(response.Version["UUID"]).To(Not(BeEmpty()))
+			})
+
+			Context("when some value is overridden", func() {
+				BeforeEach(func() {
+					request.Params.Overrides = map[string]string{"a": "7"}
+				})
+
+				It("the values from 'put' step params overrides any value from files", func() {
+					Expect(len(response.Version)).To(Equal(4))
+					Expect(response.Version["a"]).To(Equal("7"))
+					Expect(response.Version["b"]).To(Equal("2"))
+				})
 			})
 		})
 
-		Context("output no data in properties file", func() {
+		Context("no files in artifact directory", func() {
 			BeforeEach(func() {
-				var outDir = path.Join(source, "out")
-				os.MkdirAll(outDir, 0755)
-				file, _ := os.Create(path.Join(outDir, "keyval.properties"))
-				defer file.Close()
+				os.RemoveAll(outDir)
+
 				request = models.OutRequest{
 					Params: models.OutParams{
-						File: path.Join("out", "keyval.properties"),
+						Directory: outDir,
 					},
 				}
 			})
 
-			It("reports empty data", func() {
+			It("reports UUID and UPDATED with no key-value pair", func() {
 				Expect(len(response.Version)).To(Equal(2))
 				Expect(response.Version).To(HaveKey("UPDATED"))
 				Expect(response.Version).To(HaveKey("UUID"))
@@ -120,13 +141,13 @@ var _ = Describe("Out", func() {
 	})
 
 	Context("with invalid inputs", func() {
-		var request models.OutRequest
-		var response models.OutResponse
-		var session *gexec.Session
+		var (
+			request models.OutRequest
+			session *gexec.Session
+		)
 
 		BeforeEach(func() {
 			request = models.OutRequest{}
-			response = models.OutResponse{}
 		})
 
 		JustBeforeEach(func() {
@@ -143,10 +164,9 @@ var _ = Describe("Out", func() {
 		})
 
 		Context("no file specified", func() {
-
 			It("reports error", func() {
 				<-session.Exited
-				Expect(session.Err).To(gbytes.Say("no properties file specified"))
+				Expect(session.Err).To(gbytes.Say("missing parameter 'directory'"))
 				Expect(session.ExitCode()).To(Equal(1))
 			})
 		})

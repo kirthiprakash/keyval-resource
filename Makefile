@@ -7,6 +7,10 @@ list-outdated-deps:
 bump-deps:
 	@scripts/bump-dependencies.sh
 
+.PHONY: test
+test:
+	ACK_GINKGO_RC=true ginkgo -r -race -progress .
+
 .PHONY: image
 image:
 	if [ ! -f version ]; then echo "1.0.0" > version; fi

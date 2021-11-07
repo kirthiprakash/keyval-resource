@@ -1,4 +1,9 @@
-FROM golang:alpine as builder
+FROM golang:alpine as ginkgo
+RUN go get -u "github.com/onsi/ginkgo/ginkgo"
+
+
+
+FROM ginkgo as builder
 ENV CGO_ENABLED 0
 
 WORKDIR /keyval-resource
@@ -12,15 +17,22 @@ RUN go build -o /assets/out ./out \
 # RUN set -e; for pkg in $(go list ./...); do \
 # 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 # 	done
+RUN ACK_GINKGO_RC="true" ginkgo -r -progress .
+
+
 
 FROM alpine:edge AS resource
 RUN apk add --update bash tzdata
 COPY --from=builder /assets /opt/resource
+
+
 
 FROM resource AS tests
 # COPY --from=builder /tests /tests
 # RUN set -e; for test in /tests/*.test; do \
 # 		$test; \
 # 	done
+
+
 
 FROM resource

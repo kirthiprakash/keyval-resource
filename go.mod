@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/google/uuid v1.3.0
-	github.com/magiconair/properties v1.8.5
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
 )

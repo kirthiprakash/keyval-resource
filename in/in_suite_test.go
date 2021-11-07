@@ -15,10 +15,10 @@ var inPath string
 var _ = BeforeSuite(func() {
 	var err error
 
-	if _, err = os.Stat("/opt/resource/check"); err == nil {
+	if _, err = os.Stat("/opt/resource/in"); err == nil {
 		inPath = "/opt/resource/in"
 	} else {
-		inPath, err = gexec.Build("github.com/concourse/time-resource/in")
+		inPath, err = gexec.Build("gstack.io/concourse/keyval-resource/in")
 		Expect(err).NotTo(HaveOccurred())
 	}
 })
