@@ -6,14 +6,14 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	//"path/filepath"
+	"path/filepath"
 
-	"github.com/moredhel/keyval-resource/models"
+	"github.com/magiconair/properties"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
-	"path/filepath"
-	"github.com/magiconair/properties"
+
+	"gstack.io/concourse/keyval-resource/models"
 )
 
 var _ = Describe("In", func() {
@@ -48,7 +48,7 @@ var _ = Describe("In", func() {
 					"a": "1",
 					"b": "2",
 				},
-				Source:  models.Source{},
+				Source: models.Source{},
 			}
 
 			response = models.InResponse{}
@@ -79,7 +79,7 @@ var _ = Describe("In", func() {
 
 		It("writes the requested data the destination", func() {
 
-			var data = properties.MustLoadFile(filepath.Join(destination, "keyval.properties"),properties.UTF8).Map();
+			var data = properties.MustLoadFile(filepath.Join(destination, "keyval.properties"), properties.UTF8).Map()
 
 			Expect(len(data)).To(Equal(2))
 			Expect(data["a"]).To(Equal("1"))
@@ -93,7 +93,7 @@ var _ = Describe("In", func() {
 
 			It("reports  empty data", func() {
 				Expect(len(response.Version)).To(Equal(0))
-				var data = properties.MustLoadFile(filepath.Join(destination, "keyval.properties"),properties.UTF8).Map();
+				var data = properties.MustLoadFile(filepath.Join(destination, "keyval.properties"), properties.UTF8).Map()
 				Expect(len(data)).To(Equal(0))
 			})
 		})

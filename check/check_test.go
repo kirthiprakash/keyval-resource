@@ -6,11 +6,10 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
+	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/moredhel/keyval-resource/models"
-	"github.com/onsi/gomega/gbytes"
+	"gstack.io/concourse/keyval-resource/models"
 )
 
 var _ = Describe("Check", func() {
@@ -24,7 +23,7 @@ var _ = Describe("Check", func() {
 
 	Context("when executed", func() {
 		var source map[string]interface{}
-		var version *models.EmptyVersion;
+		var version *models.EmptyVersion
 		var response models.CheckResponse
 
 		BeforeEach(func() {
@@ -62,8 +61,7 @@ var _ = Describe("Check", func() {
 		Context("when version is given", func() {
 
 			BeforeEach(func() {
-				version = &models.EmptyVersion{
-				}
+				version = &models.EmptyVersion{}
 			})
 
 			It("outputs an empty version array", func() {
@@ -84,7 +82,7 @@ var _ = Describe("Check", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			stdin.Close()
-		});
+		})
 		Context("with a missing everything", func() {
 			It("returns an error", func() {
 				<-session.Exited
@@ -94,4 +92,4 @@ var _ = Describe("Check", func() {
 		})
 
 	})
-});
+})

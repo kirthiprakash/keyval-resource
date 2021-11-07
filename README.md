@@ -1,18 +1,38 @@
 
-[![Docker Stars](https://img.shields.io/docker/stars/moredhel/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/moredhel/keyval-resource/stars/count/)
-[![Docker pulls](https://img.shields.io/docker/pulls/moredhel/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/moredhel/keyval-resource)
-[![Docker build status](https://img.shields.io/docker/build/moredhel/keyval-resource.svg)](https://github.com/moredhel/keyval-resource)
-[![Docker Automated build](https://img.shields.io/docker/automated/moredhel/keyval-resource.svg)](https://github.com/moredhel/keyval-resource)
+[![Docker Stars](https://img.shields.io/docker/stars/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource/stars/count/)
+[![Docker pulls](https://img.shields.io/docker/pulls/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource)
+[![Docker build status](https://img.shields.io/docker/build/gstack/keyval-resource.svg)](https://github.com/gstackio/keyval-resource)
+[![Docker Automated build](https://img.shields.io/docker/automated/gstack/keyval-resource.svg)](https://github.com/gstackio/keyval-resource)
 
-[![dockeri.co](http://dockeri.co/image/moredhel/keyval-resource)](https://hub.docker.com/r/moredhel/keyval-resource/)
+[![dockeri.co](http://dockeri.co/image/gstack/keyval-resource)](https://hub.docker.com/r/gstack/keyval-resource/)
 
 # Concourse CI Key Value Resource
 
-Implements a resource that passes key values between jobs without using any external resource such as git/s3 etc.
+Implements a resource that passes key values between jobs without using any
+external resource such as Git/S3 etc.
+
+The key/value pairs are serialized in the `version` JSON objects, stored in
+the Concourse SQL database. As such, they are desinged to hold small textual,
+non-secret configuration data.
+
+In terms of pipeline design, secrets are supposed to be stored in a vault like
+CredHub instead, and binaries or large text files are supposed to be sotred
+on more relevant persistent storage like Git or S3.
 
 ## Thanks
 
-This resource was implemented based on the [time resource](https://github.com/concourse/time-resource)
+This resource is a fork of the [keyval resource][moredhel_gh] by @moredhel.
+
+Compared to the [original `keyval` resource][swce_gh] from @SWCE, writing
+key/value pairs as plain files in some resource folder is more consistent
+with usual conventions in Concourse, when it comes to storing anything in
+step artifacts.
+
+Writing/reading files is always easier in Bash scripts than parsing some Java
+Properties file. much less biolerplate code is required.
+
+[moredhel_gh]: https://github.com/moredhel/keyval-resource
+[swce_gh]: https://github.com/SWCE/keyval-resource
 
 ## Source Configuration
 
@@ -21,7 +41,7 @@ resource_types:
   - name: keyval
     type: docker-image
     source:
-      repository: moredhel/keyval-resource
+      repository: gstack/keyval-resource
       
 resources:
   - name: keyval
@@ -36,44 +56,61 @@ resources:
 
 ### `check`: Produce a single dummy key
 
-This is a version-less resource so `check` behavior is no-op
+This is a version-less resource so `check` behavior is no-op.
+
+It will detect the latest store key/value pairs, if any, and won't provide any
+version history.
+
+#### Parameters
+
+*None.*
 
 ### `in`: Report the given time.
 
-Fetches the given key values and stores them in their own files where the
-key is the name of the file and the value is the contents.
+Fetches the given key & values from the stored resource version JSON (in the
+Concourse SQL database) and write them in their respective files where the
+key is the file name and the value is the file contents.
 
-``` sh
+```yaml
 version:
     my_secret: secret_value
 ```
 
 would result in:
 
-``` sh
+```sh
 $ cat resource/my_secret
 secret_value
 ```
 
 #### Parameters
 
-*None.*
+- `directory`: *Required.* The artifact directory to be scanned for files, in
+  order to generate key-value pairs
+
+- `overrides`: *Optional.* A dictionary of key-value pairs that will override
+  any key-value pairs found in `directory`.
+
 
 ### `out`: Consumes the given properties file
 
-**NOT IMPLEMENTED** (pull-requests welcome)
+Does the reverse of `in`, where each file in the resource directory is
+converted to a key (the file name) and a value (the file contents) that is
+added to the `version` JSON object, to be stored in the Concourse SQL
+database.
 
 #### Parameters
-- file - the properties file to read the key values from
+
+*None.*
 
 ## Examples
 
-```YAML
+```yaml
 resource_types:
   - name: keyval
-    type: docker-image
+    type: registry-image
     source:
-      repository: moredhel/keyval-resource
+      repository: gstack/keyval-resource
 
 resources:
   - name: keyval
@@ -87,80 +124,20 @@ jobs:
         file: tools/tasks/build/task.yml
       - put: keyval
         params:
-          file: keyvalout/keyval.properties
+          directory: build-info
 
   - name: test-deploy
     plan:
-      - aggregate:
-        - get: keyval
-          passed:
-          - build
+      - in_parallel:
+          - get: keyval
+            passed: [ build ]
       - task: test-deploy
         file: tools/tasks/task.yml
 ```
 
-The build job writes all the key values it needs to pass along (e.g. artifact id) in the `keyvalout/keyval.properties` file. 
-The test-deploy can read the data from the `keyval/keyval.properties` file and use them as it pleases. 
-
-## CI suggestions
-
-### Auto export the keys
-
-You can add the following bash script to the **start** of every job to auto export the passed key values, if they exist. 
-The script assumes that the resource folder is `keyval`. 
-
-* Don't forget to source the script so it's exports will be passed along
-
-```bash
-#!/bin/bash
-
-props="${ROOT_FOLDER}/keyval/keyval.properties"
-if [ -f "$props" ]
-then
-  echo "Reading passed key values"
-  while IFS= read -r var
-  do
-    if [ ! -z "$var" ]
-    then
-      echo "Adding: $var"
-      export "$var"
-    fi
-  done < "$props"
-fi
-
-```
-
-### Auto pass the keys
-
-You can add the following bash script to the **end** of every job to auto pass specific environment variables as key values to the next job. 
-The script only passes environment variables that start with `PASSED_`. 
-The script assumes that the resource out file is `keyvalout/keyval.properties`:
-
-e.g. 
-```YAML
-- put: keyval
-  params:
-    file: keyvalout/keyval.properties
-``` 
-
-```bash
-#!/bin/bash
-
-propsDir="${ROOT_FOLDER}/keyvalout"
-propsFile="${propsDir}/keyval.properties"
-if [ -d "$propsDir" ]
-then
-  touch "$propsFile"
-  echo "Setting key values for next job in ${propsFile}"
-  while IFS='=' read -r name value ; do
-    if [[ $name == 'PASSED_'* ]]; then
-      echo "Adding: ${name}=${value}"
-      echo "${name}=${value}" >> "$propsFile"
-    fi
-  done < <(env)
-fi
-
-```
+The build job writes all the key values it needs to pass along in files inside
+the `build-info` directory. The `test-deploy` job then reads the files in the
+`keyval` directory and use them as necessary.
 
 ## Development
 

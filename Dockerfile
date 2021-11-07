@@ -3,13 +3,12 @@ ENV CGO_ENABLED 0
 
 WORKDIR /keyval-resource
 
-COPY go.sum .
-COPY go.mod .
+COPY go.mod go.sum .
 RUN go mod download
 COPY . .
-RUN go build -o /assets/out ./out
-RUN go build -o /assets/in ./in
-RUN go build -o /assets/check ./check
+RUN go build -o /assets/out ./out \
+ && go build -o /assets/in ./in \
+ && go build -o /assets/check ./check
 # RUN set -e; for pkg in $(go list ./...); do \
 # 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 # 	done

@@ -2,23 +2,24 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"fmt"
-	"github.com/google/uuid"
-	"github.com/moredhel/keyval-resource/models"
 	"time"
+
+	"github.com/google/uuid"
+
+	"gstack.io/concourse/keyval-resource/models"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fatalNoErr("usage: " + os.Args[0] + " <destination>")
+		fatalNoErr("usage: " + os.Args[0] + " <source-dir>")
 	}
 
-	destination := os.Args[1]
+	sourceDir := os.Args[1]
 
 	var request models.OutRequest
 
@@ -29,17 +30,21 @@ func main() {
 
 	data := make(map[string]string)
 
+	if request.Params.Directory == "" {
+		fatalNoErr("missing parameter 'directory'. Which artifact directory is to be scanned?")
+	}
+	artifactDir := filepath.Join(sourceDir, request.Params.Directory)
+
 	// read in files
-	files, err := ioutil.ReadDir(destination)
+	files, err := ioutil.ReadDir(artifactDir)
 
 	if err != nil {
 		fatal("could not open directory", err)
 		return
 	}
+	log(fmt.Sprintf("reading directory '%s'", artifactDir))
 
-
-	for i := range files {
-		file := files[i]
+	for _, file := range files {
 		fileName := file.Name()
 
 		// don't supported nested maps
@@ -48,7 +53,7 @@ func main() {
 			continue
 		}
 
-		inputFile := filepath.Join(destination, fileName)
+		inputFile := filepath.Join(artifactDir, fileName)
 		content, err := ioutil.ReadFile(inputFile)
 		if err != nil {
 			log(fmt.Sprintf("skipping file %s", fileName))
@@ -59,8 +64,8 @@ func main() {
 	}
 
 	// override with request keys
-	for k, v := range request.Params {
-		data[k] = v
+	for key, val := range request.Params.Overrides {
+		data[key] = val
 	}
 
 	data["UPDATED"] = time.Now().Format(time.RFC850)

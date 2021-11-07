@@ -1,19 +1,21 @@
 package main_test
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
-	"github.com/moredhel/keyval-resource/models"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/onsi/gomega/gexec"
-	"bufio"
-	"fmt"
 	"github.com/onsi/gomega/gbytes"
+	"github.com/onsi/gomega/gexec"
+
+	"gstack.io/concourse/keyval-resource/models"
 )
 
 var _ = Describe("Out", func() {
@@ -76,9 +78,9 @@ var _ = Describe("Out", func() {
 				fmt.Fprintln(w, "b=2")
 				w.Flush()
 				request = models.OutRequest{
-					Params: models.OutParams {
+					Params: models.OutParams{
 						File: path.Join("out", "keyval.properties"),
-					},		
+					},
 				}
 			})
 
@@ -102,7 +104,7 @@ var _ = Describe("Out", func() {
 				request = models.OutRequest{
 					Params: models.OutParams{
 						File: path.Join("out", "keyval.properties"),
-					},		
+					},
 				}
 			})
 

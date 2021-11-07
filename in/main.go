@@ -1,23 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
-	"bufio"
-	"fmt"
-	"github.com/moredhel/keyval-resource/models"
+	"gstack.io/concourse/keyval-resource/models"
 )
 
 var (
 	destination string
 )
 
-func create_file(key string, value string) {
-	output := filepath.Join(destination, key)
+func createFile(name string, contents string) {
+	filePath := filepath.Join(destination, name)
 
-	file, err := os.Create(output)
+	file, err := os.Create(filePath)
 	if err != nil {
 		fatal("creating output file", err)
 	}
@@ -25,7 +25,7 @@ func create_file(key string, value string) {
 	defer file.Close()
 
 	w := bufio.NewWriter(file)
-	fmt.Fprintf(w, "%s", value)
+	fmt.Fprintf(w, "%s", contents)
 
 	err = w.Flush()
 
@@ -54,9 +54,12 @@ func main() {
 		fatal("reading request", err)
 	}
 
-	for k, v := range request.Version {
-		create_file(k, v)
+	for key, val := range request.Version {
+		createFile(key, val)
 	}
+	json.NewEncoder(os.Stdout).Encode(models.InResponse{
+		Version: request.Version,
+	})
 	log("Done")
 }
 

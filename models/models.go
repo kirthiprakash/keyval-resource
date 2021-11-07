@@ -1,8 +1,5 @@
 package models
 
-type EmptyVersion struct {
-}
-
 type Version map[string]string
 
 type InRequest struct {
@@ -14,9 +11,14 @@ type InResponse struct {
 	Version Version `json:"version"`
 }
 
+type OutParams struct {
+	Directory string            `json:"directory"`
+	Overrides map[string]string `json:"overrides"`
+}
+
 type OutRequest struct {
-	Source Source `json:"source"`
-	Params map[string]string
+	Source Source    `json:"source"`
+	Params OutParams `json:"params"`
 }
 
 type OutResponse struct {
@@ -24,10 +26,10 @@ type OutResponse struct {
 }
 
 type CheckRequest struct {
-	Source  Source       `json:"source"`
-	Version EmptyVersion `json:"version"`
+	Source  Source  `json:"source"`
+	Version Version `json:"version"`
 }
 
-type CheckResponse []EmptyVersion
+type CheckResponse []Version
 
 type Source struct{}

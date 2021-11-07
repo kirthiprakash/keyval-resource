@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/moredhel/keyval-resource/models"
+	"gstack.io/concourse/keyval-resource/models"
 )
 
 func main() {
@@ -15,6 +15,10 @@ func main() {
 		fmt.Fprintln(os.Stderr, "parse error:", err.Error())
 		os.Exit(1)
 	}
-	versions := []models.EmptyVersion{}
-	json.NewEncoder(os.Stdout).Encode(versions)
+
+	response := models.CheckResponse{}
+	if len(request.Version) > 0 {
+		response = models.CheckResponse{request.Version}
+	}
+	json.NewEncoder(os.Stdout).Encode(response)
 }
