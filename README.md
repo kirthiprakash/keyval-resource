@@ -29,7 +29,7 @@ with usual conventions in Concourse, when it comes to storing anything in
 step artifacts.
 
 Writing/reading files is always easier in Bash scripts than parsing some Java
-Properties file. Much less biolerplate code is required.
+Properties file. Much less boilerplate code is required.
 
 [moredhel_gh]: https://github.com/moredhel/keyval-resource
 [swce_gh]: https://github.com/SWCE/keyval-resource
