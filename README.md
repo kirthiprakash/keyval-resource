@@ -6,30 +6,38 @@
 -->
 [![dockeri.co](https://dockeri.co/image/gstack/keyval-resource)](https://hub.docker.com/r/gstack/keyval-resource/)
 
-# Concourse CI Key Value Resource
+# Concourse key-value resource
 
-Implements a resource that passes key values between jobs without using any
-external resource such as Git/S3 etc.
+Implements a resource that passes sets of key-value pairs between jobs without
+using any external storage with resource like [Git][git_resource] or
+[S3][s3_resource].
 
-The key/value pairs are serialized in the `version` JSON objects, stored in
-the Concourse SQL database. As such, they are designed to hold small textual,
-non-secret configuration data.
+The key-value pairs are serialized in the `version` JSON objects, stored in
+the Concourse SQL database. As such, they are designed to
+hold _small_, _textual_, _non-secret_ data.
 
 In terms of pipeline design, secrets are supposed to be stored in a vault like
 CredHub instead, and binaries or large text files are supposed to be stored
-on more relevant persistent storage like Git or S3.
+on more relevant persistent storage like [Git][git_resource] (possibly with
+Git-LFS) or [S3][s3_resource].
 
-## Thanks
+[git_resource]: https://github.com/concourse/git-resource
+[s3_resource]: https://github.com/concourse/s3-resource
 
-This resource is a fork of the [keyval resource][moredhel_gh] by @moredhel.
+## Credits
 
-Compared to the [original `keyval` resource][swce_gh] from @SWCE, writing
-key/value pairs as plain files in some resource folder is more consistent
-with usual conventions in Concourse, when it comes to storing anything in
-step artifacts.
+This resource is a fork of the [`keyval` resource][moredhel_gh] by
+[@moredhel](https://github.com/moredhel).
+
+Compared to the [original `keyval` resource][swce_gh] from SWCE by
+[@regevbr](https://github.com/regevbr) and [@ezraroi](https://github.com/ezraroi),
+writing key-value pairs as plain files in some resource folder is more
+consistent with usual conventions in Concourse, when it comes to storing
+anything in step artifacts. It is also compliant with the ConfigMap pattern
+from Kubernetes.
 
 Writing/reading files is always easier in Bash scripts than parsing some Java
-Properties file. Much less boilerplate code is required.
+Properties file, because much less boilerplate code is required.
 
 [moredhel_gh]: https://github.com/moredhel/keyval-resource
 [swce_gh]: https://github.com/SWCE/keyval-resource
