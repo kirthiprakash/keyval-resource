@@ -85,12 +85,7 @@ secret_value
 
 #### Parameters
 
-- `directory`: *Required.* The artifact directory to be scanned for files, in
-  order to generate key-value pairs
-
-- `overrides`: *Optional.* A dictionary of key-value pairs that will override
-  any key-value pairs found in `directory`.
-
+*None.*
 
 ### `out`: Consumes the given properties file
 
@@ -101,7 +96,12 @@ database.
 
 #### Parameters
 
-*None.*
+- `directory`: *Required.* The artifact directory to be scanned for files, in
+  order to generate key-value pairs
+
+- `overrides`: *Optional.* A dictionary of key-value pairs that will override
+  any key-value pairs found in `directory`.
+
 
 ## Examples
 
