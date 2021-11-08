@@ -146,14 +146,6 @@ the `build-info` directory. The `test-deploy` job then reads the files in the
 
 ## Development
 
-### Prerequisites
-
-* golang is *required* - version 1.9.x is tested; earlier versions may also
-  work.
-* docker is *required* - version 17.06.x is tested; earlier versions may also
-  work.
-* godep is used for dependency management of the golang packages.
-
 ### Running the tests
 
 Golang unit tests can be run from some shell command-line with Ginkgo, that
