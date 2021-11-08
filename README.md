@@ -1,8 +1,9 @@
 
 [![Docker Stars](https://img.shields.io/docker/stars/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource/stars/count/)
 [![Docker pulls](https://img.shields.io/docker/pulls/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource)
+<!--
 [![Concourse Build](https://ci.gstack.io/api/v1/teams/gk-plat-devs/pipelines/keyval-resource/jobs/build/badge)](https://ci.gstack.io/teams/gk-plat-devs/pipelines/keyval-resource)
-
+-->
 [![dockeri.co](https://dockeri.co/image/gstack/keyval-resource)](https://hub.docker.com/r/gstack/keyval-resource/)
 
 # Concourse CI Key Value Resource
@@ -37,14 +38,14 @@ Properties file. Much less boilerplate code is required.
 
 ``` YAML
 resource_types:
-  - name: keyval
-    type: docker-image
+  - name: key-value
+    type: registry-image
     source:
       repository: gstack/keyval-resource
       
 resources:
-  - name: keyval
-    type: keyval
+  - name: key-value
+    type: key-value
 ```
 
 #### Parameters
@@ -111,29 +112,29 @@ add it to the `overrides` parameter of some `put` step.
 
 ```yaml
 resource_types:
-  - name: keyval
+  - name: key-value
     type: registry-image
     source:
       repository: gstack/keyval-resource
 
 resources:
-  - name: keyval
-    type: keyval
+  - name: build-info
+    type: key-value
 
 jobs:
 
   - name: build
     plan:
       - task: build
-        file: tools/tasks/build/task.yml
-      - put: keyval
+        file: tools/tasks/build/task.yml # <- must declare a 'build-info' output artifact
+      - put: build-info
         params:
           directory: build-info
 
   - name: test-deploy
     plan:
       - in_parallel:
-          - get: keyval
+          - get: build-info
             passed: [ build ]
       - task: test-deploy
         file: tools/tasks/task.yml
@@ -155,16 +156,21 @@ the `build-info` directory. The `test-deploy` job then reads the files in the
 
 ### Running the tests
 
-**NOTE**: Tests have not yet been rewritten to reflect the updated configuration
+Golang unit tests can be run from some shell command-line with Ginkgo, that
+has [to be installed](https://github.com/onsi/ginkgo#getting-started) first.
 
-The tests have been embedded with the `Dockerfile`; ensuring that the testing
-environment is consistent across any `docker` enabled platform. When the docker
-image builds, the test are run inside the docker container, on failure they
-will stop the build.
+```bash
+make test
+```
 
-Run the tests with the following command:
+These unit test are embedded in the `Dockerfile`, ensuring they are
+consistently run in a determined Docker image providing proper test
+environment. Whenever the tests fail the Docker build will be stopped.
 
-```sh
+In order to build the image and run the unit tests, use `docker build` as
+follows:
+
+```bash
 docker build -t keyval-resource .
 ```
 
