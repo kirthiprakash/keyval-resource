@@ -1,6 +1,7 @@
 
 [![Docker Stars](https://img.shields.io/docker/stars/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource/stars/count/)
 [![Docker pulls](https://img.shields.io/docker/pulls/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource)
+[![Concourse Build](https://ci.gstack.io/api/v1/teams/gk-plat-devs/pipelines/keyval-resource/jobs/build/badge)](https://ci.gstack.io/teams/gk-plat-devs/pipelines/keyval-resource)
 
 [![dockeri.co](https://dockeri.co/image/gstack/keyval-resource)](https://hub.docker.com/r/gstack/keyval-resource/)
 
