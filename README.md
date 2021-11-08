@@ -105,7 +105,7 @@ add it to the `overrides` parameter of some `put` step.
   order to generate key-value pairs
 
 - `overrides`: *Optional.* A dictionary of key-value pairs that will override
-  any key-value pairs found in `directory`.
+  any matching pair with same key found in `directory`.
 
 
 ## Examples
