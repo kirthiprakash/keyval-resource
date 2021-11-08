@@ -1,10 +1,8 @@
 
 [![Docker Stars](https://img.shields.io/docker/stars/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource/stars/count/)
 [![Docker pulls](https://img.shields.io/docker/pulls/gstack/keyval-resource.svg?style=plastic)](https://registry.hub.docker.com/v2/repositories/gstack/keyval-resource)
-[![Docker build status](https://img.shields.io/docker/build/gstack/keyval-resource.svg)](https://github.com/gstackio/keyval-resource)
-[![Docker Automated build](https://img.shields.io/docker/automated/gstack/keyval-resource.svg)](https://github.com/gstackio/keyval-resource)
 
-[![dockeri.co](http://dockeri.co/image/gstack/keyval-resource)](https://hub.docker.com/r/gstack/keyval-resource/)
+[![dockeri.co](https://dockeri.co/image/gstack/keyval-resource)](https://hub.docker.com/r/gstack/keyval-resource/)
 
 # Concourse CI Key Value Resource
 
