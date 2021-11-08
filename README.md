@@ -137,12 +137,15 @@ jobs:
           - get: build-info
             passed: [ build ]
       - task: test-deploy
-        file: tools/tasks/task.yml
+        file: tools/tasks/task.yml # <- must declare a 'build-info' input artifact
 ```
 
-The build job writes all the key values it needs to pass along in files inside
-the `build-info` directory. The `test-deploy` job then reads the files in the
-`keyval` directory and use them as necessary.
+The `build` task writes all the key-value pairs it needs to pass along in
+files inside the `build-info` output artifact directory.
+
+The `test-deploy` job then reads the files from the `build-info` resource,
+which produces a `build-info` artifact directory to be used by the
+`test-deploy` task.
 
 ## Development
 
