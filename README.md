@@ -54,7 +54,7 @@ resources:
 
 ## Behavior
 
-### `check`: Produce a single dummy key
+### `check`: Report the latest stored key-value pairs
 
 This is a version-less resource so `check` behavior is no-op.
 
@@ -65,7 +65,7 @@ version history.
 
 *None.*
 
-### `in`: Report the given time.
+### `in`: Fetch the latest stored key-value pairs from the Concourse SQL database
 
 Fetches the given key & values from the stored resource version JSON (in the
 Concourse SQL database) and write them in their respective files where the
@@ -87,12 +87,17 @@ secret_value
 
 *None.*
 
-### `out`: Consumes the given properties file
+### `out`: Store new set of key-value pairs to the Concourse SQL database
 
-Does the reverse of `in`, where each file in the resource directory is
-converted to a key (the file name) and a value (the file contents) that is
-added to the `version` JSON object, to be stored in the Concourse SQL
-database.
+Converts each file in the artifact directory designated by `directory` to a
+set of key-value pairs, where file names are the keys and file contents are
+the values. This set of key-value pairs is persisted in the `version` JSON
+object, to be stored in the Concourse SQL database.
+
+A value from a file in `directory` can be overridden by a matching key with
+different value in the dictionary given as the `overrides` parameter. If you
+need to store some Concourse `((vars))` value in a key-value resource, then
+add it to the `overrides` parameter of some `put` step.
 
 #### Parameters
 
