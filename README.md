@@ -12,11 +12,11 @@ Implements a resource that passes key values between jobs without using any
 external resource such as Git/S3 etc.
 
 The key/value pairs are serialized in the `version` JSON objects, stored in
-the Concourse SQL database. As such, they are desinged to hold small textual,
+the Concourse SQL database. As such, they are designed to hold small textual,
 non-secret configuration data.
 
 In terms of pipeline design, secrets are supposed to be stored in a vault like
-CredHub instead, and binaries or large text files are supposed to be sotred
+CredHub instead, and binaries or large text files are supposed to be stored
 on more relevant persistent storage like Git or S3.
 
 ## Thanks
@@ -29,7 +29,7 @@ with usual conventions in Concourse, when it comes to storing anything in
 step artifacts.
 
 Writing/reading files is always easier in Bash scripts than parsing some Java
-Properties file. much less biolerplate code is required.
+Properties file. Much less biolerplate code is required.
 
 [moredhel_gh]: https://github.com/moredhel/keyval-resource
 [swce_gh]: https://github.com/SWCE/keyval-resource
