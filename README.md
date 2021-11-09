@@ -79,16 +79,15 @@ Fetches the given key & values from the stored resource version JSON (in the
 Concourse SQL database) and write them in their respective files where the
 key is the file name and the value is the file contents.
 
-```yaml
-version:
-    my_secret: secret_value
+```json
+"version": { "some_key": "some_value" }
 ```
 
 would result in:
 
-```sh
-$ cat resource/my_secret
-secret_value
+```
+$ cat resource/some_key
+some_value
 ```
 
 #### Parameters
