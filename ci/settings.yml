@@ -14,7 +14,7 @@ meta:
   image:
     name: harbor.ci.gstack.io/gstack/gk-ops
     registry:
-      username: ((docker_registry_username))
+      username: ((docker-registry-username))
       password: ((docker-registry-password))
 
   dockerhub:
@@ -54,7 +54,25 @@ groups:
 
 resources:
 
+  - name: image
+    icon: docker
+
+  - name: git
+    icon: github
+    check_every: 24h
+    webhook_token: ((concourse-webhook-token))
+
+  - name: docker-image-build-task
+    icon: bash
+
+  - name: edge
+    icon: docker
+
+  - name: latest
+    icon: docker
+
   - name: version
+    icon: counter
     source:
       bucket:            (( prune ))
       region_name:       (( prune ))
@@ -68,6 +86,8 @@ resources:
       private_key: ((github-private-key))
       git_user:    "((git-commit-name)) <((git-commit-email))>"
 
-  - name: git
-    check_every: 24h
-    webhook_token: ((concourse-webhook-token))
+  - name: notify
+    icon: slack
+
+  - name: github
+    icon: github

@@ -69,10 +69,23 @@ jobs:
     public: true
     serial: true
     plan:
-      - get: git
-        trigger: true
+      - in_parallel:
+          - { get: context, trigger: true, resource: git }
+          - { get: docker-image-build-task }
+
+      - task: build-docker-image
+        image: docker-image-build-task
+        privileged: true
+        config:
+          platform: linux
+          inputs:   [ { name: context, path: "." } ]
+          outputs:  [ name: image ]
+          caches:   [ path: cache ]
+          run:      { path: build }
+
       - put: edge
-        params: { build: git }
+        inputs: [ image ]
+        params: { image: image/image.tar }
         on_failure:
           put: notify
           params:
@@ -99,7 +112,7 @@ jobs:
     plan:
       - in_parallel:
           - { get: version }
-          - { get: edge, passed: [build], params: { save: true } }
+          - { get: edge, passed: [build], params: { format: oci } }
           - { get: git,  passed: [build] }
           - { get: image }
 
@@ -127,9 +140,9 @@ jobs:
 
       - put: latest
         params:
+          image:         edge
           tag:           version/number
           tag_prefix:    v
-          load:          edge
           tag_as_latest: true
 
       - put: version
@@ -147,13 +160,13 @@ jobs:
 
 resource_types:
   - name: slack-notification
-    type: docker-image
+    type: registry-image
     source:
       repository: cfcommunity/slack-notification-resource
 
 resources:
   - name: image
-    type: docker-image
+    type: registry-image
     source:
       repository: (( grab meta.image.name ))
       tag:        (( grab meta.image.tag ))
@@ -167,14 +180,20 @@ resources:
       branch:      (( grab meta.github.branch ))
       private_key: (( grab meta.github.private_key ))
 
+  - name: docker-image-build-task
+    type: registry-image
+    icon: docker
+    source:
+      repository: concourse/oci-build-task
+
   - name: edge
-    type: docker-image
+    type: registry-image
     source:
       .: (( inject meta.dockerhub ))
       tag: edge
 
   - name: latest
-    type: docker-image
+    type: registry-image
     source:
       .: (( inject meta.dockerhub ))
       tag: latest
