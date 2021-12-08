@@ -5,7 +5,7 @@ meta:
   target:  gk-plat-devs
   url:     https://ci.gstack.io
 
-  initial_version: 1.0.4
+  initial_version: "1.1.0"
 
   git:
     email:  ((git-commit-email))
