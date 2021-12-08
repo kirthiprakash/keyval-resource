@@ -18,8 +18,8 @@ meta:
       password: ((docker-registry-password))
 
   dockerhub:
-    username: ((docker-registry-username))
-    password: ((docker-registry-password))
+    username:   ((docker-registry-username))
+    password:   ((docker-registry-password))
     repository: (( concat "harbor.ci.gstack.io/gstack/" meta.name ))
 
   aws:
@@ -39,7 +39,7 @@ meta:
     webhook:       ((slack-webhook))
     username:      ((slack-username))
     icon:          ((slack-icon-url))
-    channel:       "#pipelines-notifications"
+    channel:       "#oss-pipelines-notifications"
     test_fail_msg:  '(( concat ":concourse-fail: <" meta.url "/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME| Failed " meta.name " tests!  Click for details.>" ))'
 
 groups:
@@ -63,7 +63,7 @@ resources:
     webhook_token: ((concourse-webhook-token))
 
   - name: docker-image-build-task
-    icon: bash
+    icon: docker
 
   - name: edge
     icon: docker

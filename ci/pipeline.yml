@@ -70,7 +70,7 @@ jobs:
     serial: true
     plan:
       - in_parallel:
-          - { get: context, trigger: true, resource: git }
+          - { get: git, trigger: true }
           - { get: docker-image-build-task }
 
       - task: build-docker-image
@@ -78,7 +78,7 @@ jobs:
         privileged: true
         config:
           platform: linux
-          inputs:   [ { name: context, path: "." } ]
+          inputs:   [ { name: git, path: "." } ]
           outputs:  [ name: image ]
           caches:   [ path: cache ]
           run:      { path: build }
