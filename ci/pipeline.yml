@@ -138,12 +138,15 @@ jobs:
             GIT_EMAIL:    (( grab meta.git.email ))
             GIT_NAME:     (( grab meta.git.name ))
 
+      - load_var: version
+        file: version/number
+
       - put: latest
+        inputs: [ edge ]
         params:
-          image:         edge
-          tag:           version/number
-          tag_prefix:    v
-          tag_as_latest: true
+          image:        edge/image.tar
+          version:      ((.:version))
+          bump_aliases: true
 
       - put: version
         params:
