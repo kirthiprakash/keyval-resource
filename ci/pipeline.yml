@@ -170,6 +170,7 @@ resource_types:
 resources:
   - name: image
     type: registry-image
+    icon: docker
     source:
       repository: (( grab meta.image.name ))
       tag:        (( grab meta.image.tag ))
@@ -178,6 +179,7 @@ resources:
 
   - name: git
     type: git
+    icon: github
     source:
       uri:         (( grab meta.github.uri ))
       branch:      (( grab meta.github.branch ))
@@ -191,18 +193,21 @@ resources:
 
   - name: edge
     type: registry-image
+    icon: docker
     source:
       .: (( inject meta.dockerhub ))
       tag: edge
 
   - name: latest
     type: registry-image
+    icon: docker
     source:
       .: (( inject meta.dockerhub ))
       tag: latest
 
   - name: version
     type: semver
+    icon: counter
     source:
       driver:            s3
       bucket:            (( grab meta.aws.bucket ))
@@ -214,11 +219,13 @@ resources:
 
   - name: notify
     type: slack-notification
+    icon: slack
     source:
       url: (( grab meta.slack.webhook ))
 
   - name: github
     type: github-release
+    icon: github
     source:
       user:         (( grab meta.github.owner ))
       repository:   (( grab meta.github.repo ))
