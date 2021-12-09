@@ -244,14 +244,16 @@ jobs:
               repository: peterevans/dockerhub-description
               tag: "2.4"
           inputs:
-            - { name: "dockerhub", path: "." }
+            - { name: "dockerhub", path: "/workspace" }
           run:
             path: /entrypoint.sh
+            dir: /
         params:
           DOCKERHUB_USERNAME:   (( grab meta.dockerhub.username ))
           DOCKERHUB_PASSWORD:   (( grab meta.dockerhub.password ))
           DOCKERHUB_REPOSITORY: (( grab meta.dockerhub.repository ))
           SHORT_DESCRIPTION:    (( grab meta.dockerhub.short_desc ))
+          README_FILEPATH:      /workspace/README.md
 
       - put: version
         params:
