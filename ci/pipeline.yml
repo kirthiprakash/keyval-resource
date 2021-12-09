@@ -72,23 +72,25 @@ jobs:
     public: true
     serial: true
     plan:
-      - in_parallel:
-          - { get: git, trigger: true }
-          - { get: docker-image-build-task }
+      - do:
+          - in_parallel:
+              - { get: git, trigger: true }
+              - { get: docker-image-build-task }
 
-      - task: build-docker-image
-        image: docker-image-build-task
-        privileged: true
-        config:
-          platform: linux
-          inputs:   [ { name: git, path: "." } ]
-          outputs:  [ name: image ]
-          caches:   [ path: cache ]
-          run:      { path: build }
+          - task: build-docker-image
+            image: docker-image-build-task
+            privileged: true
+            config:
+              platform: linux
+              inputs:   [ { name: git, path: "." } ]
+              outputs:  [ name: image ]
+              caches:   [ path: cache ]
+              run:      { path: build }
 
-      - put: edge
-        inputs: [ image ]
-        params: { image: image/image.tar }
+          - put: edge
+            inputs: [ image ]
+            params: { image: image/image.tar }
+
         on_failure:
           put: notify
           params:
