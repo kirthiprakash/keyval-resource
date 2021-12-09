@@ -21,6 +21,8 @@ meta:
     username:   ((docker-registry-username))
     password:   ((docker-registry-password))
     repository: (( concat "harbor.ci.gstack.io/gstack/" meta.name ))
+    short_desc:
+      A Concourse resource that passes key-value pairs between jobs
 
   aws:
     bucket:      (( grab meta.pipeline ))

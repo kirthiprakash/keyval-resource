@@ -189,6 +189,8 @@ The `file` parameter of `put` steps is renamed `overrides`.
 
 
 
+<!-- START_OF_DOCKERHUB_STRIP -->
+
 ## Development
 
 ### Running the tests
@@ -219,6 +221,8 @@ locally.
 When submitting a Pull Request or pushing new commits, the Concourse CI/CD
 pipeline provides feedback with building the Dockerfile, which implies
 running Ginkgo unit tests.
+
+<!-- END_OF_DOCKERHUB_STRIP -->
 
 
 
