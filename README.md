@@ -12,9 +12,15 @@ Implements a resource that passes sets of key-value pairs between jobs without
 using any external storage with resource like [Git][git_resource] or
 [S3][s3_resource].
 
-The key-value pairs are serialized in the `version` JSON objects, stored in
-the Concourse SQL database. As such, they are designed to
-hold _small_, _textual_, _non-secret_ data.
+Pulled by a `get` step, key-value pairs are provided to the build plan as an
+artifact directory with one file per key-value pair. The name of a file is
+the “key”, and its contents is the “value”. These key-value pairs can then be
+loaded as local build vars using a [`load_var` step][load_var_step].
+
+Pushed by a `put` step, key-value pairs are persisted in the Concourse SQL
+database. For this to be possible, the trick is that they are serialized as
+keys and values in [`version` JSON objects][version_schema]. As such, they
+are designed to hold _small_, _textual_, _non-secret_ data.
 
 In terms of pipeline design, secrets are supposed to be stored in a vault like
 CredHub instead, and binaries or large text files are supposed to be stored
@@ -23,6 +29,10 @@ Git-LFS) or [S3][s3_resource].
 
 [git_resource]: https://github.com/concourse/git-resource
 [s3_resource]: https://github.com/concourse/s3-resource
+[load_var_step]: https://concourse-ci.org/load-var-step.html
+[version_schema]: https://concourse-ci.org/config-basics.html#schema.version
+
+
 
 ## Credits
 
@@ -42,6 +52,8 @@ Properties file, because much less boilerplate code is required.
 [moredhel_gh]: https://github.com/moredhel/keyval-resource
 [swce_gh]: https://github.com/SWCE/keyval-resource
 
+
+
 ## Source Configuration
 
 ``` YAML
@@ -59,6 +71,8 @@ resources:
 #### Parameters
 
 *None.*
+
+
 
 ## Behavior
 
@@ -115,6 +129,7 @@ add it to the `overrides` parameter of some `put` step.
   any matching pair with same key found in `directory`.
 
 
+
 ## Examples
 
 ```yaml
@@ -154,6 +169,26 @@ The `test-deploy` job then reads the files from the `build-info` resource,
 which produces a `build-info` artifact directory to be used by the
 `test-deploy` task.
 
+
+
+## Migrating from previous key-value resources
+
+### Migrating from `SWCE/keyval-resource`
+
+Key-value pairs are no more written as Java `.properties` file, but rather one
+file per key-value pair. The name of a file is a “key”, and its contents is
+the related “value”.
+
+The required `file` paramerter for `put` steps is replaced by `directory`.
+
+### Migrating from `moredhel/keyval-resource`
+
+The required `directory` paramerter has been added to `put` steps.
+
+The `file` parameter of `put` steps is renamed `overrides`.
+
+
+
 ## Development
 
 ### Running the tests
@@ -180,3 +215,22 @@ docker build -t keyval-resource .
 
 Please make all pull requests to the `master` branch and ensure tests pass
 locally.
+
+When submitting a Pull Request or pushing new commits, the Concourse CI/CD
+pipeline provides feedback with building the Dockerfile, which implies
+running Ginkgo unit tests.
+
+
+
+## Author and License
+
+Copyright © 2021-present, Benjamin Gandon, Gstack
+
+Like Concourse, the key-value resource is released under the terms of the
+[Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0).
+
+<!--
+# Local Variables:
+# indent-tabs-mode: nil
+# End:
+-->
