@@ -249,9 +249,9 @@ jobs:
             path: /entrypoint.sh
             dir: /
         params:
-          DOCKERHUB_USERNAME:   (( grab meta.dockerhub.username ))
-          DOCKERHUB_PASSWORD:   (( grab meta.dockerhub.password ))
-          DOCKERHUB_REPOSITORY: (( grab meta.dockerhub.repository ))
+          DOCKERHUB_USERNAME:   ((dockerhub-username))
+          DOCKERHUB_PASSWORD:   ((dockerhub-password))
+          DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
           SHORT_DESCRIPTION:    (( grab meta.dockerhub.short_desc ))
           README_FILEPATH:      /workspace/README.md
 
