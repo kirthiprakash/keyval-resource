@@ -44,6 +44,90 @@ meta:
     channel:       "#oss-pipelines-notifications"
     test_fail_msg:  '(( concat ":concourse-fail: <" meta.url "/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME| Failed " meta.name " tests!  Click for details.>" ))'
 
+jobs:
+  - name: promote
+    plan:
+      - (( insert after 3 )) # actually after { put: latest }
+
+      - task: prepare-dockerhub-readme
+        image: image
+        config:
+          platform: linux
+          inputs:
+            - name: git
+          outputs:
+            - name: dockerhub
+          run:
+            path: bash
+            args:
+              - -c
+              - |
+                set -ueo pipefail
+                sed -e '/START_OF_DOCKERHUB_STRIP/,/END_OF_DOCKERHUB_STRIP/d' \
+                    git/README.md \
+                    > dockerhub/README.md
+
+      - task: update-dockerhub-readme
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              # NOTE: this task leverages the following GitHub action
+              repository: peterevans/dockerhub-description
+              tag: "2.4"
+          inputs:
+            - { name: dockerhub, path: /workspace }
+          run:
+            dir: /
+            path: /entrypoint.sh
+        params:
+          DOCKERHUB_USERNAME:   ((dockerhub-username))
+          DOCKERHUB_PASSWORD:   ((dockerhub-password))
+          DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
+          SHORT_DESCRIPTION:    (( grab meta.dockerhub.short_desc ))
+          README_FILEPATH:      /workspace/README.md
+
+      # - task: update-dockerhub-readme
+      #   image: image
+      #   config:
+      #     platform: linux
+      #     inputs:
+      #       - name: dockerhub
+      #     run:
+      #       path: bash
+      #       args:
+      #         - -c
+      #         - |
+      #           set -ueo pipefail
+
+      #           payload=$(jq --null-input \
+      #               --arg "username" "${DOCKERHUB_USERNAME}" \
+      #               --arg "password" "${DOCKERHUB_PASSWORD}" \
+      #               '{ "username": $username, "password": $password }')
+
+      #           curl --silent --fail --show-error --location \
+      #               --request="POST" \
+      #               --url="https://hub.docker.com/v2/users/login" \
+      #               --header="Content-Type: application/json" \
+      #               --data-raw="${payload}" \
+      #             > token.json
+
+      #           payload=$(jq --null-input \
+      #               --arg "full_description" "$(cat dockerhub/README.md)" \
+      #               '{ "full_description": $full_description }')
+
+      #           curl --silent --fail --show-error --location --include \
+      #               --request="PATCH" \
+      #               --url="https://hub.docker.com/v2/repositories/${DOCKERHUB_REPOSITORY}" \
+      #               --header="Content-Type: application/json" \
+      #               --header="Authorization: JWT $(jq --raw-output '.token' token.json)" \
+      #               --data-raw="${payload}"
+      #   params:
+      #     DOCKERHUB_USERNAME:   ((dockerhub-username))
+      #     DOCKERHUB_PASSWORD:   ((dockerhub-password))
+      #     DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
+
 resources:
 
   - name: git

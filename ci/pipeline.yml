@@ -48,7 +48,6 @@ meta:
     username:   (( param "Please specify the username for your Dockerhub account" ))
     password:   (( param "Please specify the password for your Dockerhub account" ))
     repository: (( param "Please specify the name of the image (repo/name) that you are building" ))
-    short_desc: (( param "Please specify a short description of the image (100 characters max) that you are building" ))
 
   slack:
     webhook:       (( param "Please specify your Slack Incoming Webhook Integration URL" ))
@@ -215,45 +214,6 @@ jobs:
           image:        edge/image.tar
           version:      ((.:version))
           bump_aliases: true
-
-      - task: prepare-dockerhub-readme
-        image: image
-        config:
-          platform: linux
-          inputs:
-            - name: git
-          outputs:
-            - name: dockerhub
-          run:
-            path: bash
-            args:
-              - -c
-              - |
-                set -ueo pipefail
-                sed -e '/START_OF_DOCKERHUB_STRIP/,/END_OF_DOCKERHUB_STRIP/d' \
-                    git/README.md \
-                    > dockerhub/README.md
-
-      - task: update-dockerhub-readme
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source:
-              # NOTE: this task leverages the following GitHub action
-              repository: peterevans/dockerhub-description
-              tag: "2.4"
-          inputs:
-            - { name: "dockerhub", path: "/workspace" }
-          run:
-            path: /entrypoint.sh
-            dir: /
-        params:
-          DOCKERHUB_USERNAME:   ((dockerhub-username))
-          DOCKERHUB_PASSWORD:   ((dockerhub-password))
-          DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
-          SHORT_DESCRIPTION:    (( grab meta.dockerhub.short_desc ))
-          README_FILEPATH:      /workspace/README.md
 
       - put: version
         params:
