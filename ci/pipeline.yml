@@ -62,7 +62,7 @@ groups:
       - build
       - build-pr
       - promote
-  - name: version
+  - name: versioning
     jobs:
       - major
       - minor
@@ -193,6 +193,7 @@ jobs:
           outputs:
             - name: gh
             - name: pushme
+            - name: dockerhub
           run:
             path: ./git/ci/scripts/release
             args: []
@@ -227,6 +228,19 @@ jobs:
           name: gh/name
           tag:  gh/tag
           body: gh/notes.md
+
+      - task: update-dockerhub-readme
+        image: image
+        config:
+          platform: linux
+          inputs:
+            - name: dockerhub
+          run:
+            path: ./git/ci/scripts/update-dockerhub-readme
+        params:
+          DOCKERHUB_USERNAME:   (( grab meta.dockerhub.username ))
+          DOCKERHUB_PASSWORD:   (( grab meta.dockerhub.password ))
+          DOCKERHUB_REPOSITORY: (( grab meta.dockerhub.repository ))
 
 resource_types:
   - name: slack-notification
@@ -291,7 +305,7 @@ resources:
 
   - name: version
     type: semver
-    icon: counter
+    icon: aws
     source:
       driver:            s3
       bucket:            (( grab meta.aws.bucket ))
