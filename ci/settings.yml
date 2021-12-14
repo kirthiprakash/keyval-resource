@@ -68,6 +68,10 @@ resources:
     check_every: 24h
     webhook_token: ((concourse-webhook-token))
 
+  - name: git-pull-requests
+    check_every: 24h
+    webhook_token: ((concourse-webhook-token))
+
   - name: version
     icon: github
     source:
