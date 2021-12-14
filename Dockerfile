@@ -21,7 +21,7 @@ RUN ACK_GINKGO_RC="true" ginkgo -r -progress .
 
 
 
-FROM alpine:edge AS resource
+FROM alpine:latest AS resource
 RUN apk add --update bash tzdata
 COPY --from=builder /assets /opt/resource
 
