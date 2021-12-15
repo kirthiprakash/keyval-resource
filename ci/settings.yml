@@ -82,6 +82,35 @@ jobs:
           DOCKERHUB_PASSWORD:   ((dockerhub-password))
           DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
 
+      - (( insert after 1 )) # insert after “task: release”
+      - task: append-usage
+        image: image
+        config:
+          platform: linux
+          inputs:  [ name: gh, name: version ]
+          outputs: [ name: gh ]
+          run:
+            path: bash
+            args:
+              - -c
+              - |
+                set -ueo pipefail
+                cat >> gh/notes.md <<EOF
+
+                ### Usage
+
+                ```yaml
+                resource_types:
+                  - name: key-value
+                    type: registry-image
+                    source:
+                      repository: ${DOCKERHUB_REPOSITORY}
+                      tag: "$(< version/number)"
+                ```
+                EOF
+        params:
+          DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
+
 resources:
 
   - name: git
