@@ -87,10 +87,10 @@ jobs:
         privileged: true
         config:
           platform: linux
-          inputs:   [ { name: git, path: "." } ]
-          outputs:  [ name: image ]
-          caches:   [ path: cache ]
-          run:      { path: build }
+          inputs:  [ { name: git, path: "." } ]
+          outputs: [ name: image ]
+          caches:  [ path: cache ]
+          run:     { path: build }
 
       - put: edge
         inputs: [ image ]
@@ -123,10 +123,10 @@ jobs:
         privileged: true
         config:
           platform: linux
-          inputs:   [ { name: git-pull-requests, path: "." } ]
-          outputs:  [ name: image ]
-          caches:   [ path: cache ]
-          run:      { path: build }
+          inputs:  [ { name: git-pull-requests, path: "." } ]
+          outputs: [ name: image ]
+          caches:  [ path: cache ]
+          run:     { path: build }
         on_success:
           put: git-pull-requests
           params:
@@ -171,7 +171,7 @@ jobs:
     plan:
       - in_parallel:
           - { get: edge,    trigger: true, passed: [ build ] }
-          - { get: git,                    passed: [ build ] }
+          - { get: git,     trigger: true, passed: [ build ] }
           - { get: version, trigger: true }
           - { get: image }
       - task: release-notes
@@ -213,7 +213,7 @@ jobs:
     plan:
       - in_parallel:
           - { get: edge,    trigger: true, passed: [ pre ] }
-          - { get: git,                    passed: [ pre ] }
+          - { get: git,     trigger: true, passed: [ pre ] }
           - { get: version, params: { pre: rc } }
       - put: version
         params: {file: version/number}
@@ -288,13 +288,25 @@ jobs:
 
       - load_var: version
         file: version/number
-
       - put: latest
         inputs: [ edge ]
         params:
           image:        edge/image.tar
           version:      ((.:version))
           bump_aliases: true
+      - task: update-dockerhub-readme
+        image: image
+        config:
+          platform: linux
+          inputs:
+            - name: git
+            - name: dockerhub
+          run:
+            path: ./git/ci/scripts/update-dockerhub-readme
+        params:
+          DOCKERHUB_USERNAME:   (( grab meta.dockerhub.username ))
+          DOCKERHUB_PASSWORD:   (( grab meta.dockerhub.password ))
+          DOCKERHUB_REPOSITORY: (( grab meta.dockerhub.repository ))
 
       - put: version
         params:
@@ -308,19 +320,6 @@ jobs:
           name: gh/name
           tag:  gh/tag
           body: gh/notes.md
-
-      - task: update-dockerhub-readme
-        image: image
-        config:
-          platform: linux
-          inputs:
-            - name: dockerhub
-          run:
-            path: ./git/ci/scripts/update-dockerhub-readme
-        params:
-          DOCKERHUB_USERNAME:   (( grab meta.dockerhub.username ))
-          DOCKERHUB_PASSWORD:   (( grab meta.dockerhub.password ))
-          DOCKERHUB_REPOSITORY: (( grab meta.dockerhub.repository ))
     on_failure:
       put: notify
       params:

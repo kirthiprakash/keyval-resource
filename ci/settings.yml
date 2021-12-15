@@ -72,9 +72,6 @@ jobs:
       - {} # task: release
       - {} # load_var: version
       - {} # put: latest
-      - {} # put: version
-      - {} # put: git
-      - {} # put: github
 
       - task: update-dockerhub-readme
         params:
