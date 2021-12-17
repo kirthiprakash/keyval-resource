@@ -96,14 +96,14 @@ jobs:
 
                 ### Usage
 
-                ```yaml
+                \`\`\`yaml
                 resource_types:
                   - name: key-value
                     type: registry-image
                     source:
                       repository: ${DOCKERHUB_REPOSITORY}
                       tag: "$(< version/number)"
-                ```
+                \`\`\`
                 EOF
         params:
           DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
