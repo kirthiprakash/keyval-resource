@@ -155,6 +155,7 @@ resources:
   - name: golang-alpine
     type: registry-image
     icon: docker
+    check_every: 24h
     source:
       repository: golang
       tag:        alpine
@@ -162,6 +163,7 @@ resources:
   - name: alpine-latest
     type: registry-image
     icon: docker
+    check_every: 24h
     source:
       repository: alpine
       tag:        latest
