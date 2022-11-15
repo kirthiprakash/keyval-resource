@@ -1,11 +1,11 @@
 module gstack.io/concourse/keyval-resource
 
-go 1.17
+go 1.19
 
 require (
 	github.com/google/uuid v1.3.0
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.16.0
+	github.com/onsi/gomega v1.24.1
 )
 
 require (
