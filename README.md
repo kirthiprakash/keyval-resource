@@ -56,7 +56,7 @@ Properties file, because much less boilerplate code is required.
 
 ## Source Configuration
 
-``` YAML
+```yaml
 resource_types:
   - name: key-value
     type: registry-image
@@ -99,7 +99,7 @@ key is the file name and the value is the file contents.
 
 would result in:
 
-```
+```bash
 $ cat resource/some_key
 some_value
 ```
