@@ -53,15 +53,33 @@ jobs:
           - { get: golang-alpine, trigger: true, params: { format: oci } }
           - { get: alpine-latest, trigger: true, params: { format: oci } }
 
-      - task: build-docker-image
+      - # task: build-docker-image
         config:
           inputs:
-            - (( replace ))
-            - name: git
+            - (( append ))
             - name: golang-alpine
             - name: alpine-latest
         params:
-          CONTEXT:          git
+          IMAGE_ARG_golang: golang-alpine/image.tar
+          IMAGE_ARG_alpine: alpine-latest/image.tar
+
+  - name: build-pr
+    plan:
+      - (( inline ))
+      - in_parallel:
+          - (( append ))
+          - { get: golang-alpine, trigger: true, params: { format: oci } }
+          - { get: alpine-latest, trigger: true, params: { format: oci } }
+
+      - {} # put: git-pull-requests
+
+      - # task: build-docker-image
+        config:
+          inputs:
+            - (( append ))
+            - name: golang-alpine
+            - name: alpine-latest
+        params:
           IMAGE_ARG_golang: golang-alpine/image.tar
           IMAGE_ARG_alpine: alpine-latest/image.tar
 
@@ -75,6 +93,7 @@ jobs:
 
       - task: update-dockerhub-readme
         params:
+          # Use DockerHub credentials and not our private registry
           DOCKERHUB_USERNAME:   ((dockerhub-username))
           DOCKERHUB_PASSWORD:   ((dockerhub-password))
           DOCKERHUB_REPOSITORY: (( concat "gstack/" meta.name ))
