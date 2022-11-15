@@ -1,5 +1,8 @@
 FROM golang:alpine as ginkgo
-RUN go get -u "github.com/onsi/ginkgo/ginkgo"
+WORKDIR /keyval-resource
+COPY go.mod go.sum ./
+RUN go install -mod="mod" "github.com/onsi/ginkgo/v2/ginkgo@latest"
+
 
 
 
@@ -8,7 +11,7 @@ ENV CGO_ENABLED 0
 
 WORKDIR /keyval-resource
 
-COPY go.mod go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 RUN go build -o /assets/out ./out \
@@ -17,7 +20,7 @@ RUN go build -o /assets/out ./out \
 # RUN set -e; for pkg in $(go list ./...); do \
 # 		go test -o "/tests/$(basename $pkg).test" -c $pkg; \
 # 	done
-RUN ACK_GINKGO_RC="true" ginkgo -r -progress .
+RUN ACK_GINKGO_RC="true" ginkgo -r --show-node-events .
 
 
 

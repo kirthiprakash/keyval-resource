@@ -9,7 +9,7 @@ bump-deps:
 
 .PHONY: test
 test:
-	ACK_GINKGO_RC=true ginkgo -r -race -progress .
+	ACK_GINKGO_RC=true ginkgo -r --race --show-node-events .
 
 .PHONY: image
 image:
