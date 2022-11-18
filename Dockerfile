@@ -25,7 +25,7 @@ RUN ACK_GINKGO_RC="true" ginkgo -r --show-node-events .
 
 
 FROM alpine:latest AS resource
-RUN apk add --update bash tzdata
+RUN apk add --no-cache bash tzdata
 COPY --from=builder /assets /opt/resource
 
 
