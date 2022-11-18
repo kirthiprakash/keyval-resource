@@ -62,7 +62,7 @@ resource_types:
     type: registry-image
     source:
       repository: gstack/keyval-resource
-      
+
 resources:
   - name: key-value
     type: key-value
