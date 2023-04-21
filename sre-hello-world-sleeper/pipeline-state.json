@@ -10,5 +10,9 @@
   "ap-southeast-1": {
     "tag": "0.0.1",
     "ref": "5924ffe01a90774aaf12ef2dae60d4064638bd87"
+  },
+  "eu-west-1": {
+    "tag": "0.0.1",
+    "ref": "5924ffe01a90774aaf12ef2dae60d4064638bd87"
   }
 }
