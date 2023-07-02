@@ -1,12 +1,12 @@
 {
   "prep": {
-    "tag": "0.0.3",
+    "tag": "0.0.2",
     "ref": "5924ffe01a90774aaf12ef2dae60d4064638bd87"
   },
   "ap-southeast-2": {
     "tag": "0.0.2",
     "ref": "5924ffe01a90774aaf12ef2dae60d4064638bd87",
-    "paused": "yes"
+    "paused": "no"
   },
   "ap-southeast-1": {
     "tag": "0.0.2",
